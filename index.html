@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PrepAI — Interview Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg:       #0a0a0f;
+    --surface:  #111118;
+    --border:   #1e1e2e;
+    --accent:   #00ffaa;
+    --accent2:  #7c3aed;
+    --text:     #e2e8f0;
+    --muted:    #4a5568;
+    --danger:   #ff4d6d;
+    --tech:     #00ffaa;
+    --behav:    #7c3aed;
+    --sys:      #f59e0b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,255,170,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,170,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Glow orb */
+  body::after {
+    content: '';
+    position: fixed;
+    top: -200px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 24px;
+  }
+
+  /* Header */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 56px;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+
+  .logo-text {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+
+  .logo-text span { color: var(--accent); }
+
+  .history-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .history-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* Hero section */
+  .hero {
+    margin-bottom: 48px;
+  }
+
+  .hero h1 {
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 12px;
+  }
+
+  .hero h1 span {
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero p {
+    color: var(--muted);
+    font-size: 16px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  /* Input card */
+  .input-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .input-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+
+  .input-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 12px;
+    align-items: end;
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  label {
+    font-size: 11px;
+    font-family: 'Space Mono', monospace;
+    color: var(--accent);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  input[type="text"] {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+
+  input[type="text"]:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,255,170,0.08);
+  }
+
+  select {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    appearance: none;
+    min-width: 130px;
+  }
+
+  select:focus { border-color: var(--accent); }
+
+  .generate-btn {
+    background: linear-gradient(135deg, var(--accent), #00cc88);
+    color: #0a0a0f;
+    border: none;
+    border-radius: 10px;
+    padding: 14px 28px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .generate-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(0,255,170,0.25);
+  }
+
+  .generate-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* Loading */
+  .loading {
+    display: none;
+    text-align: center;
+    padding: 48px;
+    font-family: 'Space Mono', monospace;
+    color: var(--accent);
+  }
+
+  .loading.active { display: block; }
+
+  .loading-dots::after {
+    content: '';
+    animation: dots 1.5s infinite;
+  }
+
+  @keyframes dots {
+    0%   { content: '.'; }
+    33%  { content: '..'; }
+    66%  { content: '...'; }
+    100% { content: ''; }
+  }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    margin: 0 auto 16px;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Results */
+  .results { display: none; }
+  .results.active { display: block; }
+
+  .results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .results-title {
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .results-title span {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 400;
+  }
+
+  .badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .badge.saved {
+    background: rgba(0,255,170,0.1);
+    color: var(--accent);
+    border: 1px solid rgba(0,255,170,0.2);
+  }
+
+  /* Q&A Cards */
+  .qa-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .qa-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    animation: slideIn 0.4s ease both;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .qa-card:nth-child(1) { animation-delay: 0.05s; }
+  .qa-card:nth-child(2) { animation-delay: 0.10s; }
+  .qa-card:nth-child(3) { animation-delay: 0.15s; }
+  .qa-card:nth-child(4) { animation-delay: 0.20s; }
+  .qa-card:nth-child(5) { animation-delay: 0.25s; }
+
+  .qa-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px 24px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .q-number {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    padding-top: 3px;
+    min-width: 24px;
+  }
+
+  .q-text {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  .q-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  .cat-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .cat-badge.technical    { background: rgba(0,255,170,0.1);   color: var(--tech);  border: 1px solid rgba(0,255,170,0.2); }
+  .cat-badge.behavioral   { background: rgba(124,58,237,0.1);  color: var(--behav); border: 1px solid rgba(124,58,237,0.2); }
+  .cat-badge.system_design{ background: rgba(245,158,11,0.1);  color: var(--sys);   border: 1px solid rgba(245,158,11,0.2); }
+
+  .toggle-icon {
+    color: var(--muted);
+    font-size: 18px;
+    transition: transform 0.25s;
+  }
+
+  .qa-card.open .toggle-icon { transform: rotate(180deg); }
+
+  .qa-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease;
+  }
+
+  .qa-card.open .qa-answer { max-height: 600px; }
+
+  .qa-answer-inner {
+    border-top: 1px solid var(--border);
+    padding: 20px 24px 20px 64px;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    line-height: 1.9;
+    color: #94a3b8;
+    white-space: pre-wrap;
+  }
+
+  /* History panel */
+  .history-panel {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 32px;
+    animation: slideIn 0.3s ease;
+  }
+
+  .history-panel.active { display: block; }
+
+  .history-panel h3 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  .history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .history-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .history-item:hover { border-color: var(--accent); }
+
+  .history-role {
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .history-meta {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .empty-state {
+    text-align: center;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    padding: 24px;
+  }
+
+  /* Error */
+  .error-msg {
+    display: none;
+    background: rgba(255,77,109,0.08);
+    border: 1px solid rgba(255,77,109,0.2);
+    border-radius: 10px;
+    padding: 14px 18px;
+    color: var(--danger);
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    margin-top: 16px;
+  }
+
+  .error-msg.active { display: block; }
+
+  @media (max-width: 640px) {
+    .input-row { grid-template-columns: 1fr; }
+    header { flex-direction: column; gap: 16px; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🤖</div>
+      <div class="logo-text">Prep<span>AI</span></div>
+    </div>
+    <button class="history-btn" onclick="toggleHistory()">⏱ History</button>
+  </header>
+
+  <!-- Hero -->
+  <div class="hero">
+    <h1>Your <span>AI-Powered</span><br/>Interview Command Center</h1>
+    <p>// Enter a role. Get questions. Ace the interview.</p>
+  </div>
+
+  <!-- History Panel -->
+  <div class="history-panel" id="historyPanel">
+    <h3>// Past Sessions</h3>
+    <div class="history-list" id="historyList">
+      <div class="empty-state">No sessions yet. Generate your first one below.</div>
+    </div>
+  </div>
+
+  <!-- Input Card -->
+  <div class="input-card">
+    <div class="input-row">
+      <div class="field-group">
+        <label>Job Role</label>
+        <input type="text" id="roleInput" placeholder="e.g. Software Development Engineer at Amazon" />
+      </div>
+      <div class="field-group">
+        <label>Difficulty</label>
+        <select id="difficultySelect">
+          <option value="easy">Easy</option>
+          <option value="medium" selected>Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+      </div>
+      <button class="generate-btn" id="generateBtn" onclick="generateQuestions()">
+        Generate ⚡
+      </button>
+    </div>
+    <div class="error-msg" id="errorMsg"></div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <div>Generating questions<span class="loading-dots"></span></div>
+  </div>
+
+  <!-- Results -->
+  <div class="results" id="results">
+    <div class="results-header">
+      <div class="results-title">
+        Interview Questions <br/>
+        <span id="sessionInfo"></span>
+      </div>
+      <span class="badge saved">✓ Auto-saved</span>
+    </div>
+    <div class="qa-list" id="qaList"></div>
+  </div>
+
+</div>
+
+<script>
+  const API = "http://localhost:8000";
+
+  // Toggle answer
+  function toggleCard(card) {
+    card.classList.toggle('open');
+  }
+
+  // Show/hide history
+  async function toggleHistory() {
+    const panel = document.getElementById('historyPanel');
+    panel.classList.toggle('active');
+    if (panel.classList.contains('active')) await loadHistory();
+  }
+
+  // Load history from backend
+  async function loadHistory() {
+    try {
+      const res = await fetch(`${API}/api/sessions`);
+      const sessions = await res.json();
+      const list = document.getElementById('historyList');
+
+      if (!sessions.length) {
+        list.innerHTML = '<div class="empty-state">No sessions yet.</div>';
+        return;
+      }
+
+      list.innerHTML = sessions.map(s => `
+        <div class="history-item" onclick="loadSession(${s.session_id})">
+          <div>
+            <div class="history-role">${s.job_role}</div>
+            <div class="history-meta">${s.question_count} questions · ${s.difficulty}</div>
+          </div>
+          <div class="history-meta">${new Date(s.created_at).toLocaleDateString()}</div>
+        </div>
+      `).join('');
+    } catch {
+      document.getElementById('historyList').innerHTML =
+        '<div class="empty-state">Could not load sessions. Is the backend running?</div>';
+    }
+  }
+
+  // Load a past session
+  async function loadSession(id) {
+    try {
+      const res = await fetch(`${API}/api/sessions/${id}`);
+      const data = await res.json();
+      renderResults(data);
+      document.getElementById('historyPanel').classList.remove('active');
+    } catch (e) {
+      showError("Failed to load session.");
+    }
+  }
+
+  // Generate new questions
+  async function generateQuestions() {
+    const role = document.getElementById('roleInput').value.trim();
+    const difficulty = document.getElementById('difficultySelect').value;
+
+    if (!role) { showError("Please enter a job role."); return; }
+
+    hideError();
+    setLoading(true);
+
+    try {
+      const res = await fetch(`${API}/api/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ job_role: role, difficulty, num_questions: 5 })
+      });
+
+      if (!res.ok) throw new Error(await res.text());
+      const data = await res.json();
+      renderResults(data);
+
+    } catch (e) {
+      showError(`Error: ${e.message}. Make sure the backend is running on port 8000.`);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Render Q&A cards
+  function renderResults(data) {
+    document.getElementById('sessionInfo').textContent =
+      `Session #${data.session_id} · ${data.job_role} · ${data.difficulty}`;
+
+    const list = document.getElementById('qaList');
+    list.innerHTML = data.questions.map((q, i) => `
+      <div class="qa-card" onclick="toggleCard(this)">
+        <div class="qa-header">
+          <span class="q-number">Q${i + 1}</span>
+          <span class="q-text">${q.question}</span>
+          <div class="q-meta">
+            <span class="cat-badge ${q.category}">${q.category.replace('_', ' ')}</span>
+            <span class="toggle-icon">▾</span>
+          </div>
+        </div>
+        <div class="qa-answer">
+          <div class="qa-answer-inner">${q.answer}</div>
+        </div>
+      </div>
+    `).join('');
+
+    document.getElementById('results').classList.add('active');
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function setLoading(on) {
+    document.getElementById('loading').classList.toggle('active', on);
+    document.getElementById('results').classList.toggle('active', false);
+    document.getElementById('generateBtn').disabled = on;
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('errorMsg');
+    el.textContent = msg;
+    el.classList.add('active');
+  }
+
+  function hideError() {
+    document.getElementById('errorMsg').classList.remove('active');
+  }
+
+  // Enter key support
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('roleInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') generateQuestions();
+    });
+  });
+</script>
+</body>
+</html>
